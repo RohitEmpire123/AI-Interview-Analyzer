@@ -6,7 +6,8 @@ dotenv.config();
 
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
-
+import userRoutes from "./routes/userRoutes.js";
+import resumeRoutes from "./routes/resumeRoutes.js";
 const app = express();
 
 // Middleware
@@ -19,7 +20,8 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
-
+app.use("/api/user", userRoutes);
+app.use("/api/resume", resumeRoutes);
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
