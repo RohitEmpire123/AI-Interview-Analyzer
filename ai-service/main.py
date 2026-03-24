@@ -2,8 +2,15 @@ from fastapi import FastAPI, UploadFile, File
 import PyPDF2
 import spacy
 from voice import analyze_voice
-
+from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 nlp = spacy.load("en_core_web_sm")
 
 # ----------- RESUME PART -----------
