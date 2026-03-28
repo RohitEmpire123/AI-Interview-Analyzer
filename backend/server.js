@@ -8,6 +8,8 @@ import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import resumeRoutes from "./routes/resumeRoutes.js";
+import analyzeRoutes from "./routes/analyzeRoutes.js";
+import reportRoutes from "./routes/reportRoutes.js";
 const app = express();
 
 // Middleware
@@ -22,6 +24,8 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/resume", resumeRoutes);
+app.use("/api/analyze", analyzeRoutes);
+app.use("/api/reports", reportRoutes);
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
