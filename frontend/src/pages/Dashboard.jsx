@@ -4,15 +4,13 @@ import axios from "axios";
 const Dashboard = () => {
   const [resume, setResume] = useState(null);
   const [audio, setAudio] = useState(null);
+  const [video, setVideo] = useState(null);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
-  const cleanText = (text) => {
-    return text.replace(/\*\*/g, "");
-  };
 
   const handleSubmit = async () => {
     if (!resume || !audio) {
-      alert("Upload both files");
+      alert("Upload resume & audio");
       return;
     }
 
@@ -20,16 +18,26 @@ const Dashboard = () => {
     formData.append("resume", resume);
     formData.append("audio", audio);
 
+    if (video) {
+      formData.append("video", video);
+    }
+
     try {
       setLoading(true);
 
-      // 🔥 IMPORTANT: Node API (NOT FastAPI)
+      const token = localStorage.getItem("token");
+
       const res = await axios.post(
         "http://localhost:5000/api/analyze",
-        formData
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
-      setResult(res.data.report); // 👈 Node se report aata hai
+      setResult(res.data.report);
 
     } catch (err) {
       console.error(err);
@@ -40,61 +48,41 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="container">
-      <h1>🚀 AI Interview Analyzer</h1>
+    <div style={{ padding: "20px" }}>
+      <h1>AI Interview Analyzer</h1>
 
       <input type="file" accept=".pdf" onChange={(e) => setResume(e.target.files[0])} />
+      <br /><br />
+
       <input type="file" accept=".wav" onChange={(e) => setAudio(e.target.files[0])} />
+      <br /><br />
+
+      <input type="file" accept=".mp4" onChange={(e) => setVideo(e.target.files[0])} />
+      <br /><br />
 
       <button onClick={handleSubmit}>
         {loading ? "Analyzing..." : "Analyze"}
       </button>
 
       {result && (
-  <div className="result-container">
+        <div style={{ marginTop: "20px" }}>
+          <h2>Result</h2>
 
-    <h2>📊 Analysis Result</h2>
+          <p><b>Resume Score:</b> {result.resumeScore}</p>
+          <p><b>Voice Score:</b> {result.voiceScore}</p>
+          <p><b>Face Score:</b> {result.faceScore}</p>
+          <p><b>Final Score:</b> {result.finalScore}</p>
 
-    {/* 🔥 SCORE CARDS */}
-    <div className="cards">
-      <div className="card">Resume: {result.resumeScore}</div>
-      <div className="card">Voice: {result.voiceScore}</div>
-      <div className="card">Final: {result.finalScore}</div>
-    </div>
+          <h3>Skills</h3>
+          <p>{result.resumeData.skills.join(", ")}</p>
 
-    {/* 🔥 PROGRESS BAR */}
-    <div className="progress">
-      <div
-        className="progress-fill"
-        style={{ width: `${result.finalScore}%` }}
-      >
-        {result.finalScore}%
-      </div>
-    </div>
+          <h3>AI Resume Feedback</h3>
+          <p style={{ whiteSpace: "pre-line" }}>{result.aiResume}</p>
 
-    {/* 🔥 SKILLS */}
-    <h3>Skills</h3>
-    <div className="skills">
-    {Array.isArray(result.resumeData.skills) &&
-    result.resumeData.skills.map((s, i) => (
-      <span key={i} className="skill">{s}</span>
-    ))}
-    </div>
-
-    {/* 🔥 AI RESUME */}
-    <h3>AI Resume Feedback</h3>
-    <div className="box">
-      {cleanText(result.aiResume)}
-    </div>
-
-    {/* 🔥 AI VOICE */}
-    <h3>AI Voice Feedback</h3>
-    <div className="box">
-      {cleanText(result.aiVoice)}
-    </div>
-
-  </div>
-)}
+          <h3>AI Voice Feedback</h3>
+          <p style={{ whiteSpace: "pre-line" }}>{result.aiVoice}</p>
+        </div>
+      )}
     </div>
   );
 };
