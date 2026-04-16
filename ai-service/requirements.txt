@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+python-multipart
+PyPDF2
+spacy
+groq
+python-dotenv
+mediapipe
+opencv-python-headless
+numpy
+https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1.tar.gz
