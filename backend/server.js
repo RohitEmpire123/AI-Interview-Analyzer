@@ -13,7 +13,9 @@ import reportRoutes from "./routes/reportRoutes.js";
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: "*"
+}));
 app.use(express.json());
 
 // Routes
