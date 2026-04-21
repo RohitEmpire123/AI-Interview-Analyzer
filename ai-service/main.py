@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File,Form
 import PyPDF2
 import spacy
 from voice import analyze_voice
@@ -31,31 +31,48 @@ nlp = spacy.load("en_core_web_sm")
 
 # ---------------- AI FUNCTIONS ----------------
 
-def ai_resume_analysis(text):
+def ai_resume_analysis(text, job_description=None):
     try:
-        response = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
-            messages=[{
-                "role": "user",
-                "content": f"""
-Analyze this resume and give:
+        prompt = f"""
+Analyze this resume:
+
+{text}
+"""
+
+        if job_description:
+            prompt += f"""
+
+Also compare it with this job description:
+
+{job_description}
+
+Give:
+- Match percentage
+- Missing skills
+- Strengths for this role
+- Weaknesses for this role
+- Improvement suggestions
+"""
+
+        else:
+            prompt += """
+Give:
 - Skills
 - Experience level
 - Strengths
 - Weaknesses
 - Score out of 100
-- Final feedback
-
-Resume:
-{text}
 """
-            }]
+
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[{"role": "user", "content": prompt}]
         )
+
         return response.choices[0].message.content
 
     except Exception as e:
         return f"AI error: {str(e)}"
-
 
 def ai_voice_feedback(text):
     try:
@@ -128,13 +145,14 @@ def calculate_score(skills, experience):
 async def analyze_full(
     resume: UploadFile = File(...),
     audio: UploadFile = File(...),
-    video: UploadFile = File(None)
+    video: UploadFile = File(None),
+    job_description: str = Form(None)
 ):
     # 🔹 Resume text
     text = extract_text(resume)
 
     # 🔹 AI Resume
-    ai_resume = ai_resume_analysis(text) if text.strip() else "No resume content"
+    ai_resume = ai_resume_analysis(text,job_description) if text.strip() else "No resume content"
 
     # 🔹 Basic Resume
     skills = extract_skills(text)

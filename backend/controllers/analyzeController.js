@@ -63,7 +63,7 @@ export const analyzeController = async (req, res) => {
       req.files.audio[0].buffer,
       req.files.audio[0].originalname
     );
-
+    formData.append("job_description", req.body.job_description || "");
     // 🔥 VIDEO (OPTIONAL)
     if (req.files.video) {
       formData.append(
@@ -85,15 +85,15 @@ export const analyzeController = async (req, res) => {
     const data = response.data;
 
     // 🔥 SCORES
-    const voiceScore = getVoiceScore(data.voice);
+    const voiceScore = getVoiceScore(data.voice || {});
     const aiScore = getAIScore(data.ai_resume_analysis);
-    const faceScore = getFaceScore(data.face);
+    const faceScore = getFaceScore(data.face || {});
 
     const finalScore =
-      data.resume.score * 0.4 +
-      voiceScore * 0.3 +
-      faceScore * 0.3;
-
+  data.resume.score * 0.4 +
+  voiceScore * 0.25 +
+  faceScore * 0.25 +
+  aiScore * 0.1;
     // 🔥 SAVE DB
     const report = await Report.create({
       userId: req.user._id,

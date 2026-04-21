@@ -19,6 +19,12 @@ const reportSchema = new mongoose.Schema({
   aiResume: String,
   aiVoice: String,
 
+  // 🔥 NEW FIELD
+  jobDescription: {
+    type: String,
+    default: ""
+  }
+
 }, { timestamps: true });
 
 export default mongoose.model("Report", reportSchema);
